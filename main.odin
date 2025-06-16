@@ -11,7 +11,6 @@ Grid :: struct {
 
 drawGrid :: proc(g: Grid) {
 	drawGridHelper :: proc(gridX, gridY, gridWidth, gridHeight, tileSize: int) {
-		fmt.println("inside helper")
 		for i in 1 ..= (gridWidth / tileSize) {
 			x := tileSize * i + gridX
 			raylib.DrawLine(i32(x), i32(gridY), i32(x), i32(gridY + gridHeight), raylib.BLACK)
@@ -33,9 +32,6 @@ getClosestBox :: proc(g: Grid, x, y: int) -> [2]int {
 
 drawClosestBox :: proc(g: Grid, x, y: int, c: raylib.Color, filled: bool) {
 	boxNum := getClosestBox(g, x, y)
-	if filled {
-		fmt.println("x:", x, "y:", y)
-		fmt.println("boxNum:", boxNum)}
 	if !filled {
 		raylib.DrawRectangleLines(
 			i32(boxNum[0] * g.ts + g.x),
@@ -57,10 +53,10 @@ drawClosestBox :: proc(g: Grid, x, y: int, c: raylib.Color, filled: bool) {
 
 main :: proc() {
 
-	colorHexes := [?]int{0x7c3f58, 0xeb6b6f, 0xf9a875, 0xfff6d3}
+	colorHexes := [?]u32{0x7c3f58, 0xeb6b6f, 0xf9a875, 0xfff6d3}
 	colors: [4]raylib.Color
 	for i in 0 ..< 4 {
-		colors[i] = raylib.GetColor(u32(colorHexes[i]))
+		colors[i] = raylib.GetColor(colorHexes[i])
 	}
 	currColor := 1
 
@@ -75,6 +71,16 @@ main :: proc() {
 	raylib.SetTargetFPS(60)
 
 	for !raylib.WindowShouldClose() {
+		switch {
+		case raylib.IsKeyDown(raylib.KeyboardKey.ONE):
+			currColor = 0
+		case raylib.IsKeyDown(raylib.KeyboardKey.TWO):
+			currColor = 1
+		case raylib.IsKeyDown(raylib.KeyboardKey.THREE):
+			currColor = 2
+		case raylib.IsKeyDown(raylib.KeyboardKey.FOUR):
+			currColor = 3
+	}
 
 		if raylib.IsMouseButtonDown(raylib.MouseButton.LEFT) {
 			colorGrid[getClosestBox(myGrid, int(raylib.GetMouseX()), int(raylib.GetMouseY()))] =
@@ -85,9 +91,8 @@ main :: proc() {
 		raylib.BeginDrawing()
 		raylib.ClearBackground(raylib.RAYWHITE)
 		drawGrid(myGrid)
-		fmt.println(colorGrid)
 		for pos, &colorIndex in colorGrid {
-			fmt.println(pos)
+
 			drawClosestBox(myGrid, pos[0] * myGrid.ts + myGrid.x, pos[1] * myGrid.ts + myGrid.y, colors[colorIndex], true)
 		}
 		drawClosestBox(
