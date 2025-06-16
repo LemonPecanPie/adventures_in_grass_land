@@ -40,6 +40,8 @@ drawClosestBox :: proc(g: Grid, x, y : int) {
 
 main :: proc() {
 
+	colorHexes :: [?]int{0x7c3f58, 0xeb6b6f, 0xf9a875, 0xfff6d3}
+
 	screenWidth :: 32 * 16 * 2
 	screenHeight :: 32 * 9 * 2
 
