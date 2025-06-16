@@ -58,7 +58,7 @@ main :: proc() {
 	for i in 0 ..< 4 {
 		colors[i] = raylib.ColorFromHSV(f32(colorHexes[i][0]), f32(colorHexes[i][1])/100., f32(colorHexes[i][2])/100.)
 	}
-	currColor := 1
+	currColor := 0
 
 	screenWidth :: 32 * 16 * 2
 	screenHeight :: 32 * 9 * 2
