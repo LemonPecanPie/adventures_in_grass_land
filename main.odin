@@ -25,11 +25,16 @@ drawGrid :: proc(g: Grid) {
 	drawGridHelper(g.x, g.y, g.w, g.h, g.ts)
 }
 
-drawClosestBox :: proc(g: Grid, x, y : int) {
+getClosestBox :: proc(g: Grid, x, y: int) -> [2]int {
     boxNumX := (x - g.x) / g.ts
     boxNumY := (y - g.y) / g.ts
-    raylib.DrawRectangleLines(i32(boxNumX * g.ts + g.x),
-    i32(boxNumY * g.ts + g.y), i32(g.ts), i32(g.ts), raylib.ORANGE)
+	return [?]int{boxNumX, boxNumY}
+}
+
+drawClosestBox :: proc(g: Grid, x, y : int) {
+    boxNum := getClosestBox(g, x, y)
+    raylib.DrawRectangleLines(i32(boxNum[0] * g.ts + g.x),
+    i32(boxNum[1] * g.ts + g.y), i32(g.ts), i32(g.ts), raylib.ORANGE)
 }
 
 
