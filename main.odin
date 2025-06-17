@@ -3,6 +3,7 @@
 package main
 
 import "core:fmt"
+import "core:strings"
 import "vendor:raylib"
 
 Grid :: struct {
@@ -50,13 +51,33 @@ drawClosestBox :: proc(g: Grid, x, y: int, c: raylib.Color, filled: bool) {
 	}
 }
 
+writeColorGridToFile :: proc(fileName: string, m: map[[2]int]int) {
+	s := ""
+	for pos, colIdx in m {
+		line := [?]string{s, string(pos[0]), string(pos[1]), string(colIdx), "\n"}
+		strings.concatenate(line[:])
+	}
+	raylib.SaveFileText(fileName, s)
+}
+
 
 main :: proc() {
 
-	colorHexes := [?][3]int{[3]int{335, 49, 49}, [3]int{358, 54, 92}, [3]int{23, 53, 98}, [3]int{48, 17, 100}}
+	controlShiftPressed := false
+
+	colorHexes := [?][3]int {
+		[3]int{335, 49, 49},
+		[3]int{358, 54, 92},
+		[3]int{23, 53, 98},
+		[3]int{48, 17, 100},
+	}
 	colors: [4]raylib.Color
 	for i in 0 ..< 4 {
-		colors[i] = raylib.ColorFromHSV(f32(colorHexes[i][0]), f32(colorHexes[i][1])/100., f32(colorHexes[i][2])/100.)
+		colors[i] = raylib.ColorFromHSV(
+			f32(colorHexes[i][0]),
+			f32(colorHexes[i][1]) / 100.,
+			f32(colorHexes[i][2]) / 100.,
+		)
 	}
 	currColor := 0
 
@@ -70,6 +91,10 @@ main :: proc() {
 	raylib.InitWindow(screenWidth, screenHeight, "my raylib window")
 	raylib.SetTargetFPS(60)
 
+	if !raylib.DirectoryExists("course_maps") {
+		raylib.MakeDirectory("course_maps")
+	}
+
 	for !raylib.WindowShouldClose() {
 		switch {
 		case raylib.IsKeyDown(raylib.KeyboardKey.ONE):
@@ -80,11 +105,23 @@ main :: proc() {
 			currColor = 2
 		case raylib.IsKeyDown(raylib.KeyboardKey.FOUR):
 			currColor = 3
-	}
+		}
 
 		if raylib.IsMouseButtonDown(raylib.MouseButton.LEFT) {
 			colorGrid[getClosestBox(myGrid, int(raylib.GetMouseX()), int(raylib.GetMouseY()))] =
 				currColor
+		}
+
+		if raylib.IsKeyDown(raylib.KeyboardKey.LEFT_CONTROL) &&
+		   raylib.IsKeyPressed(raylib.KeyboardKey.LEFT_SHIFT) {
+			controlShiftPressed = true
+		}
+		if !raylib.IsKeyDown(raylib.KeyboardKey.LEFT_CONTROL) ||
+		   raylib.IsKeyDown(raylib.KeyboardKey.LEFT_SHIFT) {
+			controlShiftPressed = false
+		}
+		if controlShiftPressed && raylib.IsKeyPressed(raylib.KeyboardKey.S) {
+			writeColorGridToFile("course_maps/course_1.txt", colorGrid)
 		}
 
 
@@ -92,7 +129,13 @@ main :: proc() {
 		raylib.ClearBackground(raylib.RAYWHITE)
 		drawGrid(myGrid)
 		for pos, &colorIndex in colorGrid {
-			drawClosestBox(myGrid, pos[0] * myGrid.ts + myGrid.x, pos[1] * myGrid.ts + myGrid.y, colors[colorIndex], true)
+			drawClosestBox(
+				myGrid,
+				pos[0] * myGrid.ts + myGrid.x,
+				pos[1] * myGrid.ts + myGrid.y,
+				colors[colorIndex],
+				true,
+			)
 		}
 		drawClosestBox(
 			myGrid,
